@@ -1,0 +1,24 @@
+{
+  "name": "travel-journey-monorepo",
+  "version": "1.0.0",
+  "description": "Travel Journey - Pure JavaScript SPA with APIs, AI, Data Structures, Algorithms, and Advanced JavaScript Patterns",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\"",
+    "dev:backend": "npm run --prefix backend dev",
+    "dev:frontend": "npm run --prefix frontend dev",
+    "build:frontend": "npm run --prefix frontend build"
+  },
+  "keywords": [
+    "vanilla-js",
+    "spa",
+    "node",
+    "express",
+    "travel-planner"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=20.3"
+  }
+}

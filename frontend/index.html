@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel Journey — Smart AI Travel Planning</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </head>
+  <body>
+    <div id="app" class="app-container">
+      <!-- Dark Sidebar -->
+      <aside class="sidebar">
+        <div class="brand" style="cursor: pointer;" data-route="/">
+          <i class="fa-solid fa-mountain-sun logo-icon"></i>
+          <h1>Travel Journey</h1>
+        </div>
+        <nav class="side-nav">
+          <a href="/" class="nav-item active" data-route="/">
+            <i class="fa-solid fa-house"></i> Home
+          </a>
+          <a href="/trips" class="nav-item" data-route="/trips">
+            <i class="fa-regular fa-map"></i> My Trips
+          </a>
+          <a href="/discover" class="nav-item" data-route="/discover">
+            <i class="fa-regular fa-compass"></i> Discover
+          </a>
+          <a href="/saved-places" class="nav-item" data-route="/saved-places">
+            <i class="fa-regular fa-heart"></i> Saved Places
+          </a>
+          <a href="/travel-tips" class="nav-item" data-route="/travel-tips">
+            <i class="fa-regular fa-lightbulb"></i> Travel Tips
+          </a>
+          <a href="/settings" class="nav-item" data-route="/settings">
+            <i class="fa-solid fa-gear"></i> Settings
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="sidebar-graphic">
+            <i class="fa-solid fa-plane-departure"></i>
+          </div>
+          <p>Better journeys<br>brighter tomorrows</p>
+          <small>Explore. Plan. Travel. Repeat.</small>
+        </div>
+      </aside>
+      
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- Top header / Profile -->
+        <header class="top-header">
+           <div class="greeting-area">
+             <h2 id="greeting-title">Hello, Explorer!</h2>
+             <p>Dream destinations. Smarter plans. Let AI craft your next adventure.</p>
+           </div>
+           <div class="user-profile" data-route="/settings">
+              <img src="https://i.pravatar.cc/150?img=11" alt="User" class="avatar">
+              <div class="user-info">
+                 <span class="user-name">Adventure awaits!</span>
+                 <span class="user-action">Make it happen <i class="fa-solid fa-chevron-down"></i></span>
+              </div>
+           </div>
+        </header>
+
+        <!-- Dynamic router view -->
+        <div id="router-view"></div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
