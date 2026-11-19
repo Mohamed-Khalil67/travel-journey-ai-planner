@@ -173,15 +173,93 @@ body {
   font-weight: 500;
 }
 
+.profile-menu {
+  position: relative;
+}
+
 .user-profile {
   display: flex;
   align-items: center;
   gap: 12px;
   background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  border: 1px solid transparent;
   padding: 6px 16px 6px 6px;
   border-radius: 40px;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.user-profile:hover,
+.user-profile[aria-expanded="true"] {
+  background-color: var(--color-surface); /* override the global button:hover fill */
+  border-color: #93c5fd;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18);
+}
+
+.user-profile:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.profile-chevron {
+  transition: transform 0.15s ease;
+}
+
+.user-profile[aria-expanded="true"] .profile-chevron {
+  transform: rotate(180deg);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  min-width: 200px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+}
+
+.profile-dropdown[hidden] {
+  display: none;
+}
+
+.profile-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--color-navy);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.profile-dropdown a i {
+  width: 16px;
+  color: #2563eb;
+  text-align: center;
+}
+
+.profile-dropdown a:hover,
+.profile-dropdown a:focus-visible {
+  background: #eff6ff;
+  outline: none;
+}
+
+.profile-dropdown-sep {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #e2e8f0;
 }
 
 .avatar {
@@ -687,5 +765,99 @@ button:hover, .primary-btn:hover {
   }
   .dashboard-preview-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Sidebar becomes a compact sticky top bar with horizontally scrolling nav */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-right: none;
+  }
+  .brand {
+    padding: 12px 16px;
+    border-bottom: none;
+  }
+  .side-nav {
+    flex-direction: row;
+    padding: 0 8px 8px;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .side-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-item {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    gap: 8px;
+    font-size: 0.84rem;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px 8px 0 0;
+    white-space: nowrap;
+  }
+  .nav-item.active {
+    border-bottom-color: #38bdf8;
+  }
+  .sidebar-footer {
+    display: none;
+  }
+
+  .main-content {
+    overflow: visible;
+  }
+  .top-header {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px 16px;
+  }
+  #router-view {
+    padding: 20px 16px 40px;
+  }
+
+  /* Plan form: one column (overrides the inline "span 3" on full-width groups) */
+  .plan-trip-form {
+    grid-template-columns: 1fr;
+  }
+  .plan-trip-form > * {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Page headers with action buttons wrap instead of overflowing */
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-actions > div {
+    flex-wrap: wrap;
+  }
+
+  /* The profile pill wraps to the left edge, so open its menu rightwards */
+  .profile-dropdown {
+    left: 0;
+    right: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-header h2 {
+    font-size: 1.5rem;
+  }
+  .user-action {
+    display: none;
+  }
+  .card {
+    padding: 18px;
+  }
+  .discover-view > div:last-child,
+  #places-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .trip-card {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
   }
 }

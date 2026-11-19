@@ -17,7 +17,7 @@ export class PlanView {
     container.innerHTML = `
       <h3 style="margin-bottom: 20px;">Plan Your Perfect Trip</h3>
       <div id="form-errors" style="color: #ef4444; margin-bottom: 16px; font-size: 0.9rem;"></div>
-      <form id="trip-form" class="plan-trip-form">
+      <form id="trip-form" class="plan-trip-form" novalidate>
         
         <div class="form-group" style="grid-column: span 3;">
           <label>Destination</label>

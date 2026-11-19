@@ -54,12 +54,20 @@
              <h2 id="greeting-title">Hello, Explorer!</h2>
              <p>Dream destinations. Smarter plans. Let AI craft your next adventure.</p>
            </div>
-           <div class="user-profile" data-route="/settings">
-              <img src="https://i.pravatar.cc/150?img=11" alt="User" class="avatar">
-              <div class="user-info">
-                 <span class="user-name">Adventure awaits!</span>
-                 <span class="user-action">Make it happen <i class="fa-solid fa-chevron-down"></i></span>
-              </div>
+           <div class="profile-menu">
+              <button type="button" class="user-profile" id="profile-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="profile-dropdown">
+                 <img src="https://i.pravatar.cc/150?img=11" alt="" class="avatar">
+                 <span class="user-info">
+                    <span class="user-name" id="profile-name">Explorer</span>
+                    <span class="user-action">Adventure awaits <i class="fa-solid fa-chevron-down profile-chevron"></i></span>
+                 </span>
+              </button>
+              <ul class="profile-dropdown" id="profile-dropdown" role="menu" aria-labelledby="profile-menu-btn" hidden>
+                 <li role="none"><a href="/plan" role="menuitem" data-route="/plan"><i class="fa-solid fa-wand-magic-sparkles"></i> Plan a trip</a></li>
+                 <li role="none"><a href="/trips" role="menuitem" data-route="/trips"><i class="fa-regular fa-map"></i> My Trips</a></li>
+                 <li role="none"><a href="/saved-places" role="menuitem" data-route="/saved-places"><i class="fa-regular fa-heart"></i> Saved Places</a></li>
+                 <li role="none" class="profile-dropdown-sep"><a href="/settings" role="menuitem" data-route="/settings"><i class="fa-solid fa-gear"></i> Settings</a></li>
+              </ul>
            </div>
         </header>
 
