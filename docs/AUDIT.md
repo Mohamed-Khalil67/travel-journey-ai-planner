@@ -133,7 +133,7 @@ After the fixes you can add: *"hardened against XSS, input-validated API with ra
 | Algorithm polish | ✅ Precompiled router, O(n) trip listing, Text-node streaming, memoised formatters | see README table |
 | Dead pub/sub, fake search, no-op `Set` | ✅ Store drives settings updates; fake search removed; `Set` is the source of truth | `main.js`, `PlanView.js` |
 | Broken remote images | ✅ Global `onerror` placeholder | `main.js`, `public/placeholder.svg` |
-| No CI | ✅ GitHub Actions: tests + build on Node 20 & 22 | `.github/workflows/ci.yml` |
+| No CI | ✅ GitHub Actions: tests + build on Node 22 & 24 | `.github/workflows/ci.yml` |
 | **Bonus:** `.env` was never loaded before services read it | ✅ `import 'dotenv/config'` first | `backend/server.js` |
 
 Tests: 5 → 40 (frontend utils/services, backend validation, rate limiter, AI demo stream, Open-Meteo parsing with mocked `fetch`).

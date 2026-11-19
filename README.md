@@ -11,7 +11,7 @@ An AI travel planner built **without a frontend framework**: a vanilla-JavaScrip
 - **Cancellation everywhere.** If you leave the results page mid-generation, the browser aborts the `fetch`. The server sees the closed socket and aborts geocoding, weather and the Gemini call through a shared `AbortSignal`.
 - **Live data, honest fallbacks.** [Open-Meteo](https://open-meteo.com/) provides geocoding and a daily forecast (free, no key), and Gemini 2.5 Flash writes the itinerary. If a service is unreachable or no API key is set, the app still works on demo data and **tells the user which parts are demo data**.
 - **Secure by default.** Every user- or AI-supplied string is HTML-escaped before rendering. The API validates and whitelists its input, rate-limits AI endpoints, restricts CORS, caps body size and never leaks stack traces.
-- **40 zero-dependency tests** with `node:test`, run in CI on every push.
+- **40 zero-dependency tests** with `node:test`, run in CI (Node 22 & 24) on every push.
 
 ## Data structures & algorithms
 
@@ -54,7 +54,7 @@ The controller geocodes first (the other services need coordinates), then fetche
 
 ## Getting started
 
-Requirements: **Node.js 20.3+**.
+Requirements: **Node.js 22+**.
 
 ```powershell
 # 1. Backend (http://localhost:3000)
