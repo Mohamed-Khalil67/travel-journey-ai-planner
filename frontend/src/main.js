@@ -2,6 +2,7 @@ import './styles/main.css';
 import { Router } from './router/index.js';
 import { settingsService } from './services/settings-service.js';
 import { appStore } from './state/store.js';
+import { inject } from '@vercel/analytics';
 
 import { HomeView } from './pages/HomeView.js';
 import { PlanView } from './pages/PlanView.js';
@@ -104,4 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const router = new Router(routes);
   window.navigateTo = (url) => router.navigate(url);
   router.init();
+  
+  // Initialize Vercel Web Analytics
+  inject();
 });
