@@ -597,7 +597,8 @@ button:hover, .primary-btn:hover {
 
 .plan-trip-form {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0, 1fr) lets columns shrink below their content so all three stay equal */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -605,6 +606,7 @@ button:hover, .primary-btn:hover {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .form-group label {
@@ -638,6 +640,12 @@ button:hover, .primary-btn:hover {
   background-color: #f8fafc;
   outline: none;
   transition: all 0.2s ease;
+}
+
+/* Fields without a leading icon (dates, selects) don't need the icon gutter */
+.input-with-icon:not(:has(i)) input,
+.input-with-icon:not(:has(i)) select {
+  padding-left: 12px;
 }
 
 .input-with-icon input:focus, .input-with-icon select:focus, textarea:focus {
