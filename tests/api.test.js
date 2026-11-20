@@ -5,10 +5,10 @@ import assert from 'node:assert/strict';
 // so a developer's backend/.env key is ignored here.
 process.env.GEMINI_API_KEY = '';
 
-// Exercise the exact handler Vercel deploys (api/index.js) over real HTTP.
-const { default: app } = await import('../api/index.js');
+// Exercise the exact Express app the Vercel `backend` service runs (backend/src/app.js) over real HTTP.
+const { default: app } = await import('../backend/src/app.js');
 
-describe('API (Vercel entry point)', () => {
+describe('API (Vercel backend service)', () => {
   let server;
   let base;
   const realFetch = globalThis.fetch;

@@ -7,7 +7,7 @@ import aiRoutes from './routes/ai.routes.js';
 
 /**
  * The Express app, without a listener, so it can run either as a long-lived
- * server (backend/server.js) or as a Vercel serverless function (api/index.js).
+ * server (backend/server.js) or as the Vercel `backend` service (entrypoint src/app.js).
  */
 const app = express();
 

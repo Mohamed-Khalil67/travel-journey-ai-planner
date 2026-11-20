@@ -89,6 +89,17 @@ Without `GEMINI_API_KEY` the server runs in **demo mode**: it streams a determin
 | `AI_RATE_LIMIT_BURST` | `5` | Token-bucket capacity per IP |
 | `AI_RATE_LIMIT_PER_MINUTE` | `5` | Sustained refill rate per IP |
 
+## Deploying to Vercel
+
+The repo deploys as **one Vercel project with two [services](https://vercel.com/docs/services)** (see `vercel.json`):
+
+| Service | Root | Framework | Public path |
+|---|---|---|---|
+| `backend` | `backend/` | Express (entrypoint `src/app.js`) | `/api/*` |
+| `frontend` | `frontend/` | Vite (static SPA) | everything else |
+
+Import the repository on [vercel.com/new](https://vercel.com/new) with **Root Directory `./`** and add `GEMINI_API_KEY` under *Environment Variables*. The SPA calls `/api/*` on its own domain, so no CORS setup is needed and no service bindings are required: the backend only calls external APIs (Open-Meteo, Nominatim, Gemini).
+
 ## Routes
 
 | Path | View |
