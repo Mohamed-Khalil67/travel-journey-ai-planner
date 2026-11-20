@@ -1,6 +1,10 @@
 import test, { describe, before, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 
+// Keep tests offline and free: dotenv never overrides an already-set variable,
+// so a developer's backend/.env key is ignored here.
+process.env.GEMINI_API_KEY = '';
+
 // Exercise the exact handler Vercel deploys (api/index.js) over real HTTP.
 const { default: app } = await import('../api/index.js');
 
@@ -70,7 +74,8 @@ describe('API (Vercel entry point)', () => {
     const frames = text.split('\n\n').filter(Boolean).map((f) => f.replace(/^data: /, ''));
     assert.equal(frames.at(-1), '[DONE]');
     const meta = JSON.parse(frames[0]).meta;
-    assert.ok(meta.demoSources.includes('location'));
+    assert.ok(meta.demoSources.some((s) => s.startsWith('location')));
+    assert.ok(meta.demoSources.some((s) => s.startsWith('itinerary')));
     const json = frames.slice(1, -1).map((f) => JSON.parse(f).chunk).join('');
     assert.equal(JSON.parse(json).itinerary.length, 3);
   });

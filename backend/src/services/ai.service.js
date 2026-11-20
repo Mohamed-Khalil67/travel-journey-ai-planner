@@ -1,6 +1,12 @@
 import { GoogleGenAI } from '@google/genai';
 
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+// gemini-3.5-flash answered in ~2 s in testing; newer "thinking" models took 30-60 s,
+// which is too slow for an interactive UI and close to serverless time limits.
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+// Google retires model names for new keys over time; an alias keeps the app working.
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || 'gemini-flash-latest';
+
+const isModelUnavailable = (err) => err?.status === 404 || /NOT_FOUND|no longer available|is not found/i.test(err?.message ?? '');
 
 const ACTIVITY_THEMES = {
   beaches: ['Beach morning & swim', 'Coastal sunset walk'],
@@ -83,23 +89,40 @@ export class AIService {
     };
   }
 
-  async generateItinerary(context) {
+  async generateItinerary(context, { onFallback } = {}) {
     if (!this.ai) return this.createMockItinerary(context);
 
     try {
-      const response = await this.ai.models.generateContent({
-        model: MODEL,
+      const response = await this.#withModelFallback((model) => this.ai.models.generateContent({
+        model,
         contents: this.getPrompt(context),
         config: { responseMimeType: 'application/json' }
-      });
+      }));
       return JSON.parse(response.text);
     } catch (err) {
       console.warn('AI generation error, falling back to demo itinerary:', err.message);
+      onFallback?.(err);
       return this.createMockItinerary(context);
     }
   }
 
-  async *streamItinerary(context, { signal } = {}) {
+  /** Runs a Gemini call on MODEL, retrying once on FALLBACK_MODEL if MODEL has been retired. */
+  async #withModelFallback(call) {
+    try {
+      return await call(MODEL);
+    } catch (err) {
+      if (!isModelUnavailable(err) || MODEL === FALLBACK_MODEL) throw err;
+      console.warn(`Model ${MODEL} unavailable; retrying with ${FALLBACK_MODEL}.`);
+      return call(FALLBACK_MODEL);
+    }
+  }
+
+  /**
+   * Streams the itinerary as text chunks.
+   * @param {{ signal?: AbortSignal, onFallback?: (err: Error) => void }} options
+   *   onFallback is called when the live AI failed and demo data is streamed instead.
+   */
+  async *streamItinerary(context, { signal, onFallback } = {}) {
     if (!this.ai) {
       // Simulate token streaming so the UI behaves the same with or without a key
       const json = JSON.stringify(this.createMockItinerary(context), null, 2);
@@ -114,11 +137,11 @@ export class AIService {
 
     let yieldedAny = false;
     try {
-      const responseStream = await this.ai.models.generateContentStream({
-        model: MODEL,
+      const responseStream = await this.#withModelFallback((model) => this.ai.models.generateContentStream({
+        model,
         contents: this.getPrompt(context),
         config: { responseMimeType: 'application/json', abortSignal: signal }
-      });
+      }));
       for await (const chunk of responseStream) {
         if (chunk.text) {
           yieldedAny = true;
@@ -130,6 +153,7 @@ export class AIService {
       // Falling back mid-stream would corrupt the JSON already sent, so only fall back before the first chunk.
       if (yieldedAny) throw err;
       console.warn('AI streaming error, falling back to demo itinerary:', err.message);
+      onFallback?.(err);
       yield JSON.stringify(this.createMockItinerary(context), null, 2);
     }
   }

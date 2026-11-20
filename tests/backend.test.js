@@ -131,6 +131,41 @@ describe('Open-Meteo services (fetch mocked)', async () => {
     assert.deepEqual([place.country, place.latitude, place.isDemo], ['United States', 33.66, false]);
   });
 
+  test('geocoding falls back to Nominatim for regions and alternate spellings', async (t) => {
+    const hosts = [];
+    t.mock.method(globalThis, 'fetch', async (url) => {
+      const u = new URL(String(url));
+      hosts.push(u.host);
+      if (u.host.includes('open-meteo')) return jsonResponse({}); // Open-Meteo doesn't know "Marrakech"
+      assert.equal(u.searchParams.get('q'), 'Marrakech, Morocco');
+      return jsonResponse([{ name: 'Marrakesh', lat: '31.63', lon: '-7.99', address: { country: 'Morocco' } }]);
+    });
+    const place = await new GeocodingService().search('Marrakech, Morocco');
+    assert.deepEqual([place.name, place.country, place.latitude, place.isDemo], ['Marrakesh', 'Morocco', 31.63, false]);
+    assert.deepEqual(hosts, ['geocoding-api.open-meteo.com', 'nominatim.openstreetmap.org']);
+  });
+
+  test('geocoding retries with a simplified name ("A & B" -> "A")', async (t) => {
+    const tried = [];
+    t.mock.method(globalThis, 'fetch', async (url) => {
+      const u = new URL(String(url));
+      const name = u.searchParams.get('name') ?? u.searchParams.get('q');
+      tried.push(name);
+      if (name === 'Reykjavík') return jsonResponse({ results: [{ name: 'Reykjavik', country: 'Iceland', latitude: 64.14, longitude: -21.9 }] });
+      return jsonResponse(u.host.includes('nominatim') ? [] : {});
+    });
+    const place = await new GeocodingService().search('Reykjavík & South Coast, Iceland');
+    assert.equal(place.name, 'Reykjavik');
+    assert.deepEqual(tried, ['Reykjavík & South Coast', 'Reykjavík & South Coast, Iceland', 'Reykjavík']);
+  });
+
+  test('parseDestination splits place, country hint and simpler candidates', async () => {
+    const { parseDestination } = await import('../backend/src/services/geocoding.service.js');
+    assert.deepEqual(parseDestination('Reykjavík & South Coast, Iceland'),
+      { place: 'Reykjavík & South Coast', countryHint: 'Iceland', candidates: ['Reykjavík & South Coast', 'Reykjavík'] });
+    assert.deepEqual(parseDestination('Kyoto').candidates, ['Kyoto']);
+  });
+
   test('geocoding returns null for an unknown place', async (t) => {
     t.mock.method(globalThis, 'fetch', async () => jsonResponse({}));
     assert.equal(await new GeocodingService().search('Xyzzyville'), null);
@@ -164,5 +199,61 @@ describe('Open-Meteo services (fetch mocked)', async () => {
     const w = await new WeatherService().getForecast({ name: 'X', latitude: null, longitude: null });
     assert.equal(w.isDemo, true);
     assert.equal(fetchMock.mock.callCount(), 0);
+  });
+});
+
+describe('AIService with Gemini (fake client)', () => {
+  const context = {
+    preferences: validateTripRequest(validBody()).value,
+    destination: { name: 'Kyoto', country: 'Japan' },
+    weather: { forecast: [] }
+  };
+  const live = (models) => Object.assign(new AIService(), { ai: { models } });
+  const retired = () => Object.assign(new Error('models/x is no longer available to new users'), { status: 404 });
+
+  test('retries on the fallback model when the primary model is retired', async (t) => {
+    t.mock.method(console, 'warn', () => {});
+    const calls = [];
+    const service = live({
+      generateContent: async ({ model }) => {
+        calls.push(model);
+        if (calls.length === 1) throw retired();
+        return { text: '{"summary":"live","itinerary":[]}' };
+      }
+    });
+    let fellBack = false;
+    const result = await service.generateItinerary(context, { onFallback: () => { fellBack = true; } });
+    assert.equal(result.summary, 'live');
+    assert.equal(calls.length, 2);
+    assert.notEqual(calls[0], calls[1]);
+    assert.equal(fellBack, false);
+  });
+
+  test('reports the fallback when Gemini fails, instead of passing demo data off as live', async (t) => {
+    t.mock.method(console, 'warn', () => {});
+    const service = live({ generateContent: async () => { throw new Error('quota exceeded'); } });
+    let fellBack = false;
+    const result = await service.generateItinerary(context, { onFallback: () => { fellBack = true; } });
+    assert.equal(fellBack, true);
+    assert.equal(result.itinerary.length, 4); // demo plan
+  });
+
+  test('streaming: falls back before the first chunk and reports it', async (t) => {
+    t.mock.method(console, 'warn', () => {});
+    const service = live({ generateContentStream: async () => { throw new Error('503'); } });
+    let fellBack = false;
+    let text = '';
+    for await (const c of service.streamItinerary(context, { onFallback: () => { fellBack = true; } })) text += c;
+    assert.equal(fellBack, true);
+    assert.equal(JSON.parse(text).itinerary.length, 4);
+  });
+
+  test('streaming: passes live chunks through untouched', async () => {
+    const service = live({
+      generateContentStream: async () => (async function* () { yield { text: '{"summary":' }; yield { text: '"live"}' }; })()
+    });
+    let text = '';
+    for await (const c of service.streamItinerary(context)) text += c;
+    assert.deepEqual(JSON.parse(text), { summary: 'live' });
   });
 });

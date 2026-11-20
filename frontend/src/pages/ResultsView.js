@@ -231,7 +231,7 @@ export class ResultsView {
             console.error('Streaming error:', error);
             streamContainer.innerHTML = `
               <div style="color: #ef4444; margin-top: 10px;">
-                <strong><i class="fa-solid fa-triangle-exclamation"></i> Connection issue:</strong> ${escapeHTML(error.message)}
+                <strong><i class="fa-solid fa-triangle-exclamation"></i> Couldn't generate your journey:</strong> ${escapeHTML(error.message)}
                 <br><br>
                 <button id="retry-stream-btn" class="outline-btn-sm" style="color: #ef4444; border-color: #ef4444;">
                   <i class="fa-solid fa-rotate-right"></i> Retry Generation
@@ -284,7 +284,7 @@ export class ResultsView {
     // Be transparent when any context came from demo data instead of live APIs
     if (meta?.demoSources?.length) {
       $('#demo-data-notice').style.display = 'block';
-      $('#demo-data-text').textContent = `Demo data used for: ${meta.demoSources.join(', ')}. Live services were unreachable or not configured.`;
+      $('#demo-data-text').textContent = `Demo data used for: ${meta.demoSources.join('; ')}.`;
     }
 
     // Map & coordinates from the backend's geocoding result
